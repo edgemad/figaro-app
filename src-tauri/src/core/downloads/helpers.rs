@@ -48,6 +48,13 @@ const SECRET_KEY: &str = match option_env!("JAN_SIGNING_KEY") {
     None => "local-dev-test-key-not-for-production",
 };
 
+/// Whether the HMAC-signed Jan auth mirror is available for this build.
+/// Community/self-built apps (like Figaro) never receive Jan's real signing
+/// key, so the mirror always rejects them (`403 Invalid signature`) and the
+/// request only wastes a round-trip before falling back to the source URL.
+/// Disable it by default so downloads go straight to the original host.
+const AUTH_MIRROR_ENABLED: bool = option_env!("JAN_ENABLE_AUTH_MIRROR").is_some();
+
 // ===== UTILITY FUNCTIONS =====
 
 pub fn err_to_string<E: std::fmt::Display>(e: E) -> String {
@@ -58,6 +65,11 @@ pub fn err_to_string<E: std::fmt::Display>(e: E) -> String {
 /// e.g., https://huggingface.co/... -> https://apps.jan.ai/huggingface.co/...
 /// or for nightly: https://huggingface.co/... -> https://apps-nightly.jan.ai/huggingface.co/...
 pub fn convert_to_mirror_url(url: &str) -> Option<String> {
+    // Skip the mirror entirely for builds without Jan's signing key
+    if !AUTH_MIRROR_ENABLED {
+        return None;
+    }
+
     let parsed = Url::parse(url).ok()?;
     let host = parsed.host_str()?;
 

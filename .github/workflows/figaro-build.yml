@@ -21,7 +21,7 @@ jobs:
         id: ver
         run: |
           V="${GITHUB_REF#refs/tags/v}"
-          echo "VERSION=${V:-0.8.5}" >> "$GITHUB_ENV"
+          echo "VERSION=${V:-0.8.6}" >> "$GITHUB_ENV"
       - name: Create draft release
         id: release
         uses: softprops/action-gh-release@v2
