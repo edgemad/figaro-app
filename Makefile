@@ -238,6 +238,9 @@ endif
 
 # Build
 build: install-and-build install-rust-targets
+	yarn download:bin
+	make build-cli
+	make build-mlx-server-if-exists
 	yarn build
 
 clean:

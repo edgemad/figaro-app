@@ -20,8 +20,8 @@ jobs:
       - name: Version from tag
         id: ver
         run: |
-          V="${GITHUB_REF#refs/tags/}"
-          echo "VERSION=${V:-0.8.4}" >> "$GITHUB_ENV"
+          V="${GITHUB_REF#refs/tags/v}"
+          echo "VERSION=${V:-0.8.5}" >> "$GITHUB_ENV"
       - name: Create draft release
         id: release
         uses: softprops/action-gh-release@v2
@@ -44,6 +44,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
       - name: Xcode (best effort)
         run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer || true
       - name: Yarn
@@ -56,7 +59,7 @@ jobs:
       - name: Package portable zip
         run: |
           cd src-tauri/target/universal-apple-darwin/release/bundle/macos
-          zip -r Figaro-0.8.4-mac-universal.zip Figaro.app
+          zip -r Figaro-${{ env.VERSION }}-mac-universal.zip Figaro.app
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
@@ -64,7 +67,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
-            src-tauri/target/universal-apple-darwin/release/bundle/macos/Figaro-0.8.4-mac-universal.zip
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/Figaro-${{ env.VERSION }}-mac-universal.zip
 
   build-linux:
     needs: create-draft-release
@@ -78,6 +81,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: dtolnay/rust-toolchain@stable
       - name: System deps
         run: |
           sudo apt update
@@ -111,6 +115,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: dtolnay/rust-toolchain@stable
       - name: Yarn
         shell: bash
         run: |
