@@ -59,7 +59,7 @@ jobs:
       - name: Package portable zip
         run: |
           cd src-tauri/target/universal-apple-darwin/release/bundle/macos
-          zip -r Figaro-${{ env.VERSION }}-mac-universal.zip Figaro.app
+          zip -r "Figaro-${GITHUB_REF#refs/tags/v}-mac-universal.zip" Figaro.app
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
@@ -67,7 +67,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
-            src-tauri/target/universal-apple-darwin/release/bundle/macos/Figaro-${{ env.VERSION }}-mac-universal.zip
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/Figaro-*-mac-universal.zip
 
   build-linux:
     needs: create-draft-release
